@@ -15,8 +15,12 @@ sudo -u $SUDO_USER mkdir -p "$destination_path"
 sudo -u $SUDO_USER cp -r "./backend" "$destination_path"
 sudo -u $SUDO_USER cp -r "./frontend" "$destination_path"
 sudo -u $SUDO_USER cp -r "GLOBAL_CONFIG.JSON" "$destination_path"
-sudo -u $SUDO_USER cp -r "AUTO_CONFIG.JSON" "$destination_path"
 
+echo '{
+    "FAST_API_SERVER_IP_WILL_AUTO_GENERATE": "WILL_AUTO_GENERATE",
+    "FAST_API_AUTH_SALT_WILL_AUTO_GENERATE": "WILL_AUTO_GENERATE"
+}' > "$destination_path"/AUTO_CONFIG.JSON
+chown "$SUDO_USER:$SUDO_USER" "$destination_path/AUTO_CONFIG.JSON"
 # dependencies and venv
 
 packages=(
@@ -42,7 +46,7 @@ sudo rm /etc/apt/keyrings/nodesource.gpg
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$node_v.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 sudo apt update
-sudo apt install nodejs -y
+sudo apt install -y nodejs 
 npm --prefix "$destination_path/frontend" install
 npm --prefix "$destination_path/frontend" run build
 #node/frontend
@@ -82,11 +86,11 @@ systemctl enable fast_logger_start.service
 # run on boot and allow timedatectl free from passwords
 
 # production mode
-echo '{"DEVELOPMENT": true}' > "$destination_path/MODE.JSON"
+echo '{"DEVELOPMENT": false}' > "$destination_path/MODE.JSON"
 # production mode
 
 ## nginx
-sudo apt-get install nginx
+sudo apt-get install -y nginx
 
 sudo mkdir -p /etc/nginx/old-sites-configs/sites-available/
 sudo mkdir -p /etc/nginx/old-sites-configs/sites-enabled/

@@ -1,0 +1,15 @@
+.shadow {
+  box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.558);
+}
+
+.duel_tone {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><rect width="45%" height="100%" fill="%2360a5fa" /><rect x="45%" width="60%" height="100%" fill="%23ffffff" /></svg>')
+    no-repeat center center fixed;
+  background-size: cover;
+}
+
+.whiteBG {
+  background: white;
+  width: 100vw;
+  height: 100vh;
+}

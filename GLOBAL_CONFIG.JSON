@@ -1,0 +1,21 @@
+{
+    "FAST_API_SERVER_PORT": 3000,
+    "ROOT_SAVED_DATA_DIRECTORY": "../LOG_DATABASE",
+    "INTERFACE_FACTORY_PORT": 3100,
+    "TOKEN_EXPIRATION": 3600,
+    "DOWNLOAD_TOKEN_EXPIRATION": 1,
+    "AUTO_DELETE_DAYS": 180,
+    "SPACE_PERCENTAGE_TO_STOP": 90,
+    "FAST_API_ALLOWED_ORIGIN": [
+        "*"
+    ],
+    "ENGINE_CLASSES": {
+        "mikrotik": {
+            "pppoe": "in:<pppoe-([A-Za-z\\d]+)>",
+            "router_identity": "\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+(\\w+)",
+            "user_ip": "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+)",
+            "destination_ip": "->(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+)",
+            "nat_ip": "->(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+)\\)"
+        }
+    }
+}

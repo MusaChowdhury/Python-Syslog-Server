@@ -1,0 +1,16 @@
+uvicorn==0.23.2
+fastapi==0.103.1
+SQLAlchemy==2.0.20
+faster-fifo==1.4.5
+tzlocal==5.0.1
+passlib==1.7.4
+pydantic==2.3.0
+python-jose[cryptography]==3.3.0
+websockets==11.0.3
+pymysql==1.1.0
+websocket-server==0.6.4
+python-multipart==0.0.6
+aiohttp==3.9.1
+python-dateutil==2.8.2
+psutil==5.9.6
+pytz==2023.3.post1

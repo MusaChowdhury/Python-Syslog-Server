@@ -32,7 +32,7 @@ with open(MODE_FILE_PATH, "r") as configs_json:
 
 # note: it is only intended for initial starting up
 if (not auto_config.get("FAST_API_AUTH_SALT_WILL_AUTO_GENERATE") or
-        len(auto_config["FAST_API_AUTH_SALT_WILL_AUTO_GENERATE"]) < 64):
+        len(auto_config["FAST_API_AUTH_SALT_WILL_AUTO_GENERATE"]) < 64) and not DEVELOPMENT:
     random_salt = ''.join(random.choices(string.ascii_letters + string.digits, k=64))
     auto_config["FAST_API_AUTH_SALT_WILL_AUTO_GENERATE"] = random_salt
 # note: it is only intended for initial starting up

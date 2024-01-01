@@ -6,7 +6,9 @@
     "DOWNLOAD_TOKEN_EXPIRATION": 1,
     "AUTO_DELETE_DAYS": 180,
     "SPACE_PERCENTAGE_TO_STOP": 90,
-    "FAST_API_ALLOWED_ORIGIN": ["*"],
+    "FAST_API_ALLOWED_ORIGIN": [
+        "*"
+    ],
     "ENGINE_CLASSES": {
         "mikrotik": {
             "pppoe": "in:<pppoe-([A-Za-z\\d]+)>",

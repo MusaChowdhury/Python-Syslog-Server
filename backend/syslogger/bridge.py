@@ -119,9 +119,11 @@ class EngineDatabaseBridge:
         return True
 
     @__none_checker_decorator()
-    def stop(self, reason="stopped", also_disk_checker=True):
+    def stop(self, reason="stopped", automated_thread=True):
         self.__lock.acquire()
+        self.__automated_threads = not automated_thread
         try:
+
             self.__engine.stop()
             self.__db_hook.stop()
             gc.collect()
@@ -132,10 +134,10 @@ class EngineDatabaseBridge:
             traceback.print_exc()
             gc.collect()
             return False
-        self.__automated_threads = not also_disk_checker
+        self.__automated_threads = not automated_thread
+        time.sleep(2)
         self.__engine = None
         self.__db_hook = None
-        time.sleep(1)
         self.__lock.release()
         self.__internal_status.clear()
         self.__saved_data.clear()

@@ -170,7 +170,7 @@ export async function createEngine(_class, name, port, keepLog) {
 }
 
 export async function deleteEngine(engineName) {
-  return await backend.deleteEngine(await getUser().token, _class, engineName);
+  return await backend.deleteEngine(await getUser().token, engineName);
 }
 
 export async function createClient(port, clientName, clientIp) {

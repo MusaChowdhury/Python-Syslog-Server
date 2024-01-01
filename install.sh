@@ -148,8 +148,8 @@ server {
 echo -e "$fastlogger_config" | sudo dd of="$conf_path"
 sudo ln -s "$conf_path" "/etc/nginx/sites-enabled/"
 #self signed cert
-sudo openssl genpkey -algorithm RSA -out $ssl_certificates_path/nginx.key
-sudo openssl req -x509 -key $ssl_certificates_path/nginx.key -out $ssl_certificates_path/nginx.crt -days 365 -subj "/CN=fastlogger.app"
+sudo openssl genpkey -algorithm RSA -out $ssl_certificates_path/nginx.key > /dev/null 2>&1
+sudo openssl req -x509 -key $ssl_certificates_path/nginx.key -out $ssl_certificates_path/nginx.crt -days 365 -subj "/CN=fastlogger.app" > /dev/null 2>&1
 #self signed cert
 sudo systemctl restart nginx
 ## ngnix

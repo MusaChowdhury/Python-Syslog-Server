@@ -18,7 +18,7 @@ sudo mv /etc/nginx/old-sites-configs/sites-available/* /etc/nginx/sites-availabl
 sudo mv /etc/nginx/old-sites-configs/sites-enabled/* /etc/nginx/sites-enabled
 sudo rm /etc/nginx/sites-enabled/fastlogger.conf
 sudo rm /etc/nginx/sites-available/fastlogger.conf
-sudo rm -rv /etc/nginx/old-sites-configs
+sudo rm -r /etc/nginx/old-sites-configs
 sudo systemctl restart nginx
 read -p "press enter to exit, system will reboot"
 sudo reboot -f

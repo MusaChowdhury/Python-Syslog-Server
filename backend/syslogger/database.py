@@ -176,7 +176,6 @@ class DataBaseHook:
         while True:
             try:
                 current_time = time.time()
-
                 try:
                     if current_time - connections_checker > 30:
                         inactive_connections = []

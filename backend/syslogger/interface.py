@@ -289,7 +289,7 @@ class LogServerWithHTTPInterface:
             "verbose_engine": "bool, put engine in verbose",
             "verbose_database": "bool, put database in verbose",
             "stop": "just need the key value, stop the bridge but can be restarted using start/restart",
-            "restart": "just need the key value, re start a stopped engine",
+            "restart": "just need the key value, restart a stopped engine",
             "_running_": "just need the key value, it provide all running threads/process",
             "supported_query": {
                 "client": "str, will return all supported query for the saved logs",

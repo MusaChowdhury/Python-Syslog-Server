@@ -18,9 +18,8 @@ from .engine import Engine, ClientWithIP, InternalLog
 
 class EngineDatabaseBridge:
 
-    def __init__(self, name: str, port: int, regular_expression: list, database_config: dict,
-                 keep_raw_log: bool, auto_delete_days: int, space_percentage_to_stop: int,
-                 verbose: bool = False):
+    def __init__(self, name: str, port: int, regular_expression: list, database_config: dict, keep_raw_log: bool,
+                 auto_delete_days: int, space_percentage_to_stop: int, verbose: bool = False):
         self.__name = name.strip()
         if not isinstance(self.__name, str):
             raise Exception("name must be str")
@@ -37,6 +36,8 @@ class EngineDatabaseBridge:
         self.__any_internal_status_update: bool = False
         self.__any_data_saved: bool = False
         self.__debug = verbose
+        self.__debug_thread = True
+        self.__debug_thread_stopped = False
         self.__auto_delete_days = auto_delete_days
         self.__space_percentage_to_stop = space_percentage_to_stop
         self.__is_paused = False
@@ -47,6 +48,8 @@ class EngineDatabaseBridge:
                 1 < int(self.__space_percentage_to_stop) < 100):
             raise Exception("space_percentage_to_stop must be greater than 1 or less than 100")
         self.__automated_threads = True
+        self.__auto_delete_thread_stopped = False
+        self.__auto_space_checker_thread_stopped = False
         self.__lock = threading.Lock()
 
     @staticmethod
@@ -82,7 +85,11 @@ class EngineDatabaseBridge:
             self.__db_hook = DataBaseHook(self.__name, self.__database_config, verbose_db)
             self.__engine = Engine(self.__name, self.__port, self.__regular_expression, self.__keep_raw_log,
                                    self.__db_hook.get_main_callback(), verbose=verbose_engine)
+
             self.__automated_threads = True
+            self.__auto_delete_thread_stopped = False
+            self.__auto_space_checker_thread_stopped = False
+            self.__debug_thread_stopped = False
             self.__db_hook.start()
             self.__engine.start()
 
@@ -109,8 +116,7 @@ class EngineDatabaseBridge:
                    name=f"bridge ({self.__name}) disk space checker").start()
 
             if self.__debug:
-                Thread(target=self.__for_debug_purpose_check_all_thread,
-                       name=f"bridge ({self.__name}) verbose thread",
+                Thread(target=self.__for_debug_purpose_check_all_thread, name=f"bridge ({self.__name}) verbose thread",
                        daemon=True).start()
         except Exception:
             if self.__debug:
@@ -121,9 +127,7 @@ class EngineDatabaseBridge:
     @__none_checker_decorator()
     def stop(self, reason="stopped", automated_thread=True):
         self.__lock.acquire()
-        self.__automated_threads = not automated_thread
         try:
-
             self.__engine.stop()
             self.__db_hook.stop()
             gc.collect()
@@ -134,22 +138,28 @@ class EngineDatabaseBridge:
             traceback.print_exc()
             gc.collect()
             return False
-        self.__automated_threads = not automated_thread
         time.sleep(2)
+        self.__automated_threads = not automated_thread
+        self.__lock.release()
+        while self.__auto_delete_thread_stopped:
+            time.sleep(0.1)
+        while self.__auto_space_checker_thread_stopped:
+            time.sleep(0.1)
+        if self.__debug:
+            self.__debug_thread = False
+            while self.__debug_thread_stopped:
+                time.sleep(0.1)
         self.__engine = None
         self.__db_hook = None
-        self.__lock.release()
         self.__internal_status.clear()
         self.__saved_data.clear()
         self.__any_data_saved = False
         self.__any_internal_status_update = False
-        self.__debug = False
-        time.sleep(1)
+        time.sleep(2)
         for status in self.__internal_performance_status:
             self.__internal_performance_status[status] = reason
         self.__internal_status.clear()
         self.__saved_data.clear()
-
         return True
 
     @staticmethod
@@ -346,16 +356,21 @@ class EngineDatabaseBridge:
 
     def __for_debug_purpose_check_all_thread(self):
         while True:
-            if not self.__debug:
+            if not self.__debug_thread:
+                self.__debug_thread_stopped = True
                 return
-            print("*" * 10, f"From Bridge ({self.__name})", "*" * 10)
-            saved_data = self.get_saved_data(False)
-            print(f"Saved Data: ({len(saved_data)})", saved_data)
-            internal_status = self.get_internal_status(False)
-            print(f"internal Log: ({len(internal_status)})", internal_status)
-            print(self.get_performance_status())
-            print("*" * 10, f"From Bridge ({self.__name})", "*" * 10)
-            print("\n")
+            try:
+                print("*" * 10, f"From Bridge ({self.__name})", "*" * 10)
+                saved_data = self.get_saved_data(False)
+                print(f"Saved Data: ({len(saved_data)})", saved_data)
+                internal_status = self.get_internal_status(False)
+                print(f"internal Log: ({len(internal_status)})", internal_status)
+                print(self.get_performance_status())
+                print("*" * 10, f"From Bridge ({self.__name})", "*" * 10)
+                print("\n")
+            except Exception as e:
+                traceback.print_exc()
+                pass
             time.sleep(1)
 
     @__none_checker_decorator()
@@ -398,34 +413,53 @@ class EngineDatabaseBridge:
             self.__engine.resume_engine()
 
     def __pause_bridge_because_of_no_space(self):
-        while self.__automated_threads:
-            percent = psutil.disk_usage('/').percent
-            if percent > self.__space_percentage_to_stop:
-                if self.__engine:
-                    self.pause_engine("no space")
-            else:
-                if self.__engine:
-                    self.resume_engine()
-            time.sleep(1)
+        previous_time_s = 0
+        while True:
+            if not self.__automated_threads:
+                with self.__lock:
+                    self.__auto_space_checker_thread_stopped = True
+                    return
+            current_time_s = int(time.time())
+            if current_time_s - previous_time_s > 5:
+                previous_time_s = int(current_time_s)
+                try:
+                    percent = psutil.disk_usage('/').percent
+                    if percent > self.__space_percentage_to_stop:
+                        if self.__engine:
+                            self.pause_engine("no space")
+                    else:
+                        if self.__engine:
+                            self.resume_engine()
+                except Exception:
+                    pass
+
+            time.sleep(0.3)
 
     def __auto_delete_old_files(self):
+        previous_time_s = 0
+        while True:
+            if not self.__automated_threads:
+                with self.__lock:
+                    self.__auto_delete_thread_stopped = True
+                    return
+            current_time_s = int(time.time())
+            if current_time_s - previous_time_s > 5:
+                previous_time_s = int(current_time_s)
+                try:
+                    current_date = datetime.now()
+                    time_threshold = current_date - timedelta(days=self.__auto_delete_days)
+                    for file_path in glob.glob(
+                            os.path.join(self.__database_config["log_saving_directory"], "**", '*.db')):
+                        file_modified_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+                        if file_modified_time < time_threshold:
+                            immediate_parent = os.path.dirname(file_path)
+                            target_db, _ = os.path.splitext(os.path.basename(file_path))
+                            for related_file in glob.glob(os.path.join(immediate_parent, f"{target_db}*")):
+                                try:
+                                    os.remove(related_file)
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass
 
-        while self.__automated_threads:
-            current_time = datetime.now()
-            time_threshold = current_time - timedelta(days=self.__auto_delete_days)
-
-            for file_path in glob.glob(os.path.join(self.__database_config["log_saving_directory"], "**", '*.db')):
-                file_modified_time = datetime.fromtimestamp(os.path.getmtime(file_path))
-                if file_modified_time < time_threshold:
-                    immediate_parent = os.path.dirname(file_path)
-                    # parent_name = os.path.basename(immediate_parent)
-                    target_db, _ = os.path.splitext(os.path.basename(file_path))
-                    # is_target_busy = self.__db_hook.is_db_busy(parent_name, f"{target_db}.db")
-                    # if not is_target_busy:
-                    for related_file in glob.glob(os.path.join(immediate_parent, f"{target_db}*")):
-                        try:
-                            os.remove(related_file)
-                        except Exception:
-                            pass
-            time.sleep(1)
-
+            time.sleep(0.3)

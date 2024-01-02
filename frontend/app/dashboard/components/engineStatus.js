@@ -46,7 +46,12 @@ export default function EngineStatus({ engineInfo }) {
 
   useEffect(() => {
     const timer = setInterval(async () => {
-      let load = await getEngineLoad(interfacePort);
+      let load = await getEngineLoad(interfacePort).then((result)=>{
+        if(Object.keys(result).length === 0){
+          return "error"
+        }
+        return result
+      });
       if (load === "error") {
         setInterfaceError(true);
         clearInterval(timer);

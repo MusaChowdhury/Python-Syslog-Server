@@ -141,13 +141,13 @@ class EngineDatabaseBridge:
         time.sleep(2)
         self.__automated_threads = not automated_thread
         self.__lock.release()
-        while self.__auto_delete_thread_stopped:
+        while not self.__auto_delete_thread_stopped:
             time.sleep(0.1)
-        while self.__auto_space_checker_thread_stopped:
+        while not self.__auto_space_checker_thread_stopped:
             time.sleep(0.1)
         if self.__debug:
             self.__debug_thread = False
-            while self.__debug_thread_stopped:
+            while not self.__debug_thread_stopped:
                 time.sleep(0.1)
         self.__engine = None
         self.__db_hook = None
@@ -416,9 +416,8 @@ class EngineDatabaseBridge:
         previous_time_s = 0
         while True:
             if not self.__automated_threads:
-                with self.__lock:
-                    self.__auto_space_checker_thread_stopped = True
-                    return
+                self.__auto_space_checker_thread_stopped = True
+                return
             current_time_s = int(time.time())
             if current_time_s - previous_time_s > 5:
                 previous_time_s = int(current_time_s)
@@ -439,9 +438,8 @@ class EngineDatabaseBridge:
         previous_time_s = 0
         while True:
             if not self.__automated_threads:
-                with self.__lock:
-                    self.__auto_delete_thread_stopped = True
-                    return
+                self.__auto_delete_thread_stopped = True
+                return
             current_time_s = int(time.time())
             if current_time_s - previous_time_s > 5:
                 previous_time_s = int(current_time_s)

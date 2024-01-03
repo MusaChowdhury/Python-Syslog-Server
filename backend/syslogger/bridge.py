@@ -125,7 +125,7 @@ class EngineDatabaseBridge:
         return True
 
     @__none_checker_decorator()
-    def stop(self, reason="stopped", automated_thread=True):
+    def stop(self, reason="stopped"):
         self.__lock.acquire()
         try:
             self.__engine.stop()
@@ -139,7 +139,7 @@ class EngineDatabaseBridge:
             gc.collect()
             return False
         time.sleep(2)
-        self.__automated_threads = not automated_thread
+        self.__automated_threads = False
         self.__lock.release()
         while not self.__auto_delete_thread_stopped:
             time.sleep(0.1)

@@ -305,7 +305,7 @@ class Engine:
                     if current_time - previous_time > 0.0001:
                         previous_time = current_time
                         try:
-                            self.__process_queue.put_many(cached)
+                            self.__process_queue.put_many(cached, timeout=0.01)
                             self.__all_incoming_per_second.value += len(cached)
                         except Exception:
                             pass
@@ -327,7 +327,7 @@ class Engine:
             allowed_clients = self.__cache_allowed_client(allowed_clients)
             try:
                 try:
-                    bunch = self.__process_queue.get_many(max_messages_to_get=27000)
+                    bunch = self.__process_queue.get_many(max_messages_to_get=27000, timeout=0.01)
                 except Exception:
                     continue
                 status = 0
@@ -366,7 +366,7 @@ class Engine:
                 return
             try:
                 try:
-                    bunch = self.__callback_queue.get_many(max_messages_to_get=9000)
+                    bunch = self.__callback_queue.get_many(max_messages_to_get=9000, timeout=0.01)
                 except Exception:
                     continue
                 for log in bunch:

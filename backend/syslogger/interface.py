@@ -218,7 +218,6 @@ class LogServerWithHTTPInterface:
                 self.__bridge_instance.start(self.__verbose_engine, self.__verbose_database)
                 for client in self.__cached_clients_from_engine:
                     self.__bridge_instance.add_client(client.client, client.ip)
-                self.__cached_clients_from_engine.clear()
                 return True
             except Exception as e:
                 return f"{e}"

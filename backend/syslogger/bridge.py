@@ -301,7 +301,9 @@ class EngineDatabaseBridge:
         return None
 
     def __internal_status_cache_thread(self, status_queue: Queue, status_for: str):
-        while self.__engine is not None or self.__db_hook is not None:
+        while True:
+            if self.__engine is None or self.__db_hook is None:
+                return
             try:
                 try:
                     _temp = status_queue.get(timeout=0.001)
@@ -316,7 +318,9 @@ class EngineDatabaseBridge:
                 self.__internal_status_list_manager(InternalLog(InternalLog.Type.Error, msg, origin))
 
     def __saved_data_cache_thread(self, saved_data_queue: Queue):
-        while self.__engine is not None or self.__db_hook is not None:
+        while True:
+            if self.__engine is None or self.__db_hook is None:
+                return
             try:
                 try:
                     saved_data: dict = saved_data_queue.get(timeout=0.001)
@@ -331,7 +335,9 @@ class EngineDatabaseBridge:
                 self.__internal_status_list_manager(InternalLog(InternalLog.Type.Error, msg, origin))
 
     def __internal_performance_cache_thread(self):
-        while self.__engine is not None or self.__db_hook is not None:
+        while True:
+            if self.__engine is None or self.__db_hook is None:
+                return
             if self.__is_paused:
                 self.__internal_performance_status["server_receiving_log"] = self.__pause_reason
                 self.__internal_performance_status["realtime_rejecting_unknown_ip"] = self.__pause_reason

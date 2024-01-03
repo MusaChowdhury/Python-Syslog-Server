@@ -95,24 +95,24 @@ class EngineDatabaseBridge:
 
             # Monitoring threads
             Thread(target=self.__internal_status_cache_thread,
-                   kwargs={"status_queue": self.__engine.get_internal_status(), "status_for": "Engine"}, daemon=True,
+                   kwargs={"status_queue": self.__engine.get_internal_status(), "status_for": "Engine"},
                    name=f"bridge ({self.__name}) internal_status checker for engine").start()
 
             Thread(target=self.__internal_status_cache_thread,
-                   kwargs={"status_queue": self.__db_hook.get_internal_status(), "status_for": "Database"}, daemon=True,
+                   kwargs={"status_queue": self.__db_hook.get_internal_status(), "status_for": "Database"},
                    name=f"bridge ({self.__name}) internal_status checker for database_hook").start()
 
-            Thread(target=self.__internal_performance_cache_thread, daemon=True,
+            Thread(target=self.__internal_performance_cache_thread,
                    name=f"bridge ({self.__name}) incoming/saving load checker for engine / database_hook").start()
 
             Thread(target=self.__saved_data_cache_thread,
-                   kwargs={"saved_data_queue": self.__db_hook.get_already_committed_data()}, daemon=True,
+                   kwargs={"saved_data_queue": self.__db_hook.get_already_committed_data()},
                    name=f"bridge ({self.__name}) already saved data checker for database_hook").start()
 
-            Thread(target=self.__auto_delete_old_files, daemon=True,
+            Thread(target=self.__auto_delete_old_files,
                    name=f"bridge ({self.__name}) auto delete thread").start()
 
-            Thread(target=self.__pause_bridge_because_of_no_space, daemon=True,
+            Thread(target=self.__pause_bridge_because_of_no_space,
                    name=f"bridge ({self.__name}) disk space checker").start()
 
             if self.__debug:

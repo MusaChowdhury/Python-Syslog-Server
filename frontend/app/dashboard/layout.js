@@ -609,7 +609,6 @@ const MobileDrawerF = forwardRef(function MobileDrawer(
           width: "92%",
           height: "86%",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
           zIndex: zIndex,
           overflowY: "auto",

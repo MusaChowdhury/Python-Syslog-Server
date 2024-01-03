@@ -453,6 +453,7 @@ class Engine:
             self.__add_internal_status_to_queue(
                 InternalLog.Type.Error, f"while closing down engine, details: {e}")
             return False
+        time.sleep(1)
         try:
             self.__callback_process_1.terminate()
             self.__callback_process_2.terminate()

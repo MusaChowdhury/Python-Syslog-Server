@@ -47,7 +47,7 @@ export default function TimeZone() {
           <DialogActions>
             <Button
               onClick={() => {
-                router.push("/dashboard/view_engines");
+                router.push("/dashboard/");
               }}
               autoFocus
             >

@@ -42,12 +42,12 @@ class UserID(BaseModel):
 
 
 class UserCreationModel(UserID):
-    password: Annotated[str, AfterValidator(UserID.valid_str)]
+    password: Annotated[str, Field(max_length=20, min_length=6)]
     user_name: Annotated[str, AfterValidator(UserID.valid_str)]
 
 
 class UserUpdateModel(BaseModel):
-    password: Annotated[str, AfterValidator(UserID.valid_str)]
+    password: Annotated[str, Field(max_length=20, min_length=6)]
     user_name: Annotated[str, AfterValidator(UserID.valid_str)]
 
 

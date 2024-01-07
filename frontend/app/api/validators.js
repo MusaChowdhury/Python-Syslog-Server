@@ -15,8 +15,8 @@ export function isValidNumber(number) {
   
   export function isValidPassword(password) {
     try {
-      if (password.length < 5 || password.length > 18) {
-        return "Invalid Length, Must Be Between 5-18";
+      if (password.length < 6 || password.length > 18) {
+        return "Invalid Length, Must Be Between 6-18";
       }
       return true;
     } catch {

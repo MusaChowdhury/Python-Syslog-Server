@@ -217,8 +217,8 @@ function EditEngine({ configs }) {
               <AlertTitle>Warning</AlertTitle>
               {`Do Not Change Settings While The Engine Is Receiving The Client's`}
               Data. <br></br> Also, Do Not Change Settings Frequently. <br></br>
-              Doing Either Of These May Result In Permanent
-              <strong>Data Loss</strong>.
+              Doing Either Of These May Result In Permanent 
+              <strong> Data Loss</strong>.
             </Alert>
           </Box>
           <Box

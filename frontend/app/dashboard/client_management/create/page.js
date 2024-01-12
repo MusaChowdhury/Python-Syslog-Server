@@ -24,7 +24,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 
 const formStyle = {
   xs: "100%",
-  lg: "20%",
+  lg: "25%",
 };
 
 export default function Create(){
@@ -104,7 +104,7 @@ export default function Create(){
               }}
               disablePortal
               options={getEngines()}
-              sx={{ width: formStyle }}
+              sx={{ width: formStyle, height: "100%" }}
               renderInput={(params) => <TextField {...params} label="Engine" />}
             />
           </Box>

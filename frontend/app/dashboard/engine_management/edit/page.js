@@ -29,7 +29,7 @@ import { useRouter } from "next/navigation";
 
 const formStyle = {
   xs: "100%",
-  lg: "20%",
+  lg: "25%",
 };
 
 export default function Edit() {
@@ -99,6 +99,7 @@ export default function Edit() {
             <FormControl
               sx={{
                 width: formStyle,
+                height: "100%"
               }}
             >
               <InputLabel>Class</InputLabel>
@@ -124,7 +125,7 @@ export default function Edit() {
               }}
               disablePortal
               options={engines}
-              sx={{ width: formStyle }}
+              sx={{ width: formStyle, height: "100%" }}
               renderInput={(params) => <TextField {...params} label="Engine" />}
             />
           </Box>

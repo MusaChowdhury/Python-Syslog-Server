@@ -126,12 +126,13 @@ export default function View() {
               p: 1,
             }}
           >
-            <FormControl // For Engines
+            <FormControl
               sx={{
                 width: {
                   xs: "100%",
-                  lg: "20%",
+                  lg: "25%",
                 },
+                height: "100%",
               }}
               variant="outlined"
             >
@@ -182,8 +183,9 @@ export default function View() {
               sx={{
                 width: {
                   xs: "100%",
-                  lg: "20%",
+                  lg: "25%",
                 },
+                height: "100%",
               }}
             >
               <InputLabel id="demo-simple-select-label">
@@ -250,12 +252,13 @@ export default function View() {
                     </IconButton>
                   </Avatar>
                 </ListItemAvatar>
-                <FormControl // For Clients
+                <FormControl
                   sx={{
                     width: {
                       xs: "100%",
-                      lg: "20%",
+                      lg: "25%",
                     },
+                    height: "100%",
                   }}
                   variant="outlined"
                 >

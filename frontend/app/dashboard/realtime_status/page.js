@@ -20,7 +20,7 @@ import { useEffect, useRef, useState } from "react";
 
 const formStyle = {
   xs: "100%",
-  lg: "20%",
+  lg: "25%",
 };
 
 export default function RealtimeStatus() {
@@ -104,11 +104,11 @@ export default function RealtimeStatus() {
           }}
           disablePortal
           options={getEngines()}
-          sx={{ width: formStyle }}
+          sx={{ width: formStyle, height: "100%" }}
           renderInput={(params) => <TextField {...params} label="Engine" />}
         />
         {engine ? (
-          <FormControl sx={{ width: formStyle }}>
+          <FormControl sx={{ width: formStyle, height: "100%" }}>
             <InputLabel>Type</InputLabel>
             <Select
               value={type}

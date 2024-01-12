@@ -193,13 +193,14 @@ export default function Delete() {
                   p: 1,
                 }}
               >
-                <FormControl // For Engines
+                <FormControl
                   sx={{
                     width: {
                       xs: "100%",
-                      lg: "20%",
+                      lg: "25%",
                     },
-                  }}
+                    height: "100%"
+                  }} 
                   variant="outlined"
                 >
                   <InputLabel>Search By Engine Name</InputLabel>
@@ -252,8 +253,9 @@ export default function Delete() {
                   sx={{
                     width: {
                       xs: "100%",
-                      lg: "20%",
+                      lg: "25%",
                     },
+                    height: "100%"
                   }}
                 >
                   <InputLabel>
@@ -319,12 +321,13 @@ export default function Delete() {
                         </IconButton>
                       </Avatar>
                     </ListItemAvatar>
-                    <FormControl // For Clients
+                    <FormControl
                       sx={{
                         width: {
                           xs: "100%",
-                          lg: "20%",
+                          lg: "25%",
                         },
+                        height: "100%"
                       }}
                       variant="outlined"
                     >

@@ -34,7 +34,7 @@ import { useRouter } from "next/navigation";
 
 const formStyle = {
   xs: "100%",
-  lg: "20%",
+  lg: "25%",
 };
 
 export default function Delete(){
@@ -216,12 +216,10 @@ export default function Delete(){
                   p: 1,
                 }}
               >
-                <FormControl // For Clients
+                <FormControl
                   sx={{
-                    width: {
-                      xs: "100%",
-                      lg: "20%",
-                    },
+                    width: formStyle,
+                    height: "100%"
                   }}
                   variant="outlined"
                 >
@@ -281,7 +279,7 @@ export default function Delete(){
                   }}
                   disablePortal
                   options={getEngines()}
-                  sx={{ width: formStyle }}
+                  sx={{ width: formStyle, height: "100%" }}
                   renderInput={(params) => (
                     <TextField {...params} label="Engine" />
                   )}

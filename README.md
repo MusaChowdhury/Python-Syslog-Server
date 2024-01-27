@@ -40,11 +40,11 @@ Where logs need to be processed before saving and the processing includes filter
 
 ### **Requirements**
 
-1. **Ubuntu** based distribution and version must be grater than or equal to **Ubuntu 22.04.3**
+1. **Ubuntu** based distribution and version must be equal to **Ubuntu 22.04**
 
 2. **Node.js 20** will be **installed automatically** if `install.sh` is used
 
-3. **Python 3.10.\*** is required to run the server
+3. **Python 3.10** is required to run the server
 
 ### Install
 
@@ -115,10 +115,10 @@ Now, from the incoming logs, if you want to filter out the necessary data (like 
 
 This will result the output of the processed log inside database like this, (assuming the router IP address is  **103.7.4.241**)
 
-| log_sender_ip | time     | time_zone  | pppoe     | router_identity | nat_ip         | nat_port | original_log                          |
-| ------------- | -------- | ---------- | --------- | --------------- | -------------- | -------- | ------------------------------------- |
-| 103.7.4.241   | 01:02:05 | Asia/Dhaka | RRWLkNYEZ | T8Y45jGZY       | 95.110.59.28   | 11384    | <869> .... (rest of the original log) |
-| 103.7.4.241   | 01:03:01 | Asia/Dhaka | uSZHIpJ5  | 2lqWuDWw        | 169.185.98.182 | 33210    | <337> .... (rest of the original log) |
+| log_sender_ip | time     | time_zone  | pppoe     | router_identity | destination_ip | destination_port | original_log                          |
+| ------------- | -------- | ---------- | --------- | --------------- | -------------- | ---------------- | ------------------------------------- |
+| 103.7.4.241   | 01:02:05 | Asia/Dhaka | RRWLkNYEZ | T8Y45jGZY       | 176.13.130.56  | 13878            | <869> .... (rest of the original log) |
+| 103.7.4.241   | 01:03:01 | Asia/Dhaka | uSZHIpJ5  | 2lqWuDWw        | 47.174.155.108 | 33358            | <337> .... (rest of the original log) |
 
 Here notice we only gave the 3 regular expressions but there are more fields than 3. Lets break it down,
 

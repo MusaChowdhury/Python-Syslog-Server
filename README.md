@@ -161,7 +161,7 @@ Now that we have understood how the regular expression works, lets discuss how t
   
   }
   
-  Here the class name is **mikrotik** and it has **five filters** applied.
+  Here the class name is **mikrotik** and it has **three filters** applied.
 
 - Following the rules you can add add as may as class needed to the configurations. 
 

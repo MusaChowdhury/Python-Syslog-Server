@@ -54,7 +54,7 @@ class EngineDatabaseBridge:
 
     @staticmethod
     def __none_checker_decorator(inverse: bool = False):
-        def decorated_funtion(function):
+        def decorated_function(function):
             def wrapper(self, *args, **kwargs):
                 if not inverse:
                     if self.__engine is None or self.__db_hook is None:
@@ -70,7 +70,7 @@ class EngineDatabaseBridge:
 
             return wrapper
 
-        return decorated_funtion
+        return decorated_function
 
     def is_none(self):
         return self.__engine is None or self.__db_hook is None

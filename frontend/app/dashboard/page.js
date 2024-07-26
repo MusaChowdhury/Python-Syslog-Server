@@ -16,7 +16,7 @@ import FormControl from "@mui/material/FormControl";
 import ImportExportIcon from "@mui/icons-material/ImportExport";
 import { useTheme } from "@mui/material/styles";
 
-export default function View() {
+export default function DashBoard() {
   const [engines, setEngines] = useState([]);
   const [loading, setLoading] = useState(true);
 

@@ -104,24 +104,8 @@ class InterfaceCreateEngine(BaseModel):
 
 
 class AddClient(InterfaceCommunicationModel):
-    @staticmethod
-    def is_valid_ip(ip: str):
-        ip = InterfaceCreateEngine.strip(ip)
-        try:
-
-            if " " in ip:
-                raise PydanticCustomError('',
-                                          "ip address cant have whitespaces")
-            ip = str(ipaddress.IPv4Address(ip))
-            # if ip == "0.0.0.0" or ip == "127.0.0.1" or ip == "localhost":
-            #     raise PydanticCustomError('',
-            #                               "'localhost' or '0.0.0.0' are prohibited")
-            return ip
-        except Exception as e:
-            raise PydanticCustomError('invalid_ip', f"invalid ip address, {e}")
-
     client: Annotated[str, AfterValidator(InterfaceCreateEngine.only_lower)]
-    ip: Annotated[str, AfterValidator(is_valid_ip)]
+    ip: str
 
 
 class DeleteClient(InterfaceCommunicationModel):

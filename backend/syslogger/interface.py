@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import ipaddress
 import json
 import logging
 import os.path
@@ -8,7 +7,6 @@ import shutil
 import socket
 import threading
 import time
-import traceback
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 from websocket_server import WebsocketServer
@@ -99,8 +97,8 @@ class LogServerWithHTTPInterface:
 
         self.__start_logserver()
 
-        self.__interface_server = CustomHTTPServer(("127.0.0.1", self.__interface_port),
-                                                   RequestHandler, self.__handel_request)
+        self.__interface_server = CustomHTTPServer(("127.0.0.1", self.__interface_port), RequestHandler,
+                                                   self.__handel_request)
 
         threading.Thread(target=self.__interface_server.serve_forever,
                          name=f"interface ({self.__class}:{self.__name}) http server instance").start()
@@ -110,20 +108,18 @@ class LogServerWithHTTPInterface:
                                                          loglevel=logging.CRITICAL)
         self.__websocket_server_saved = WebsocketServer(host="127.0.0.1", port=self.__saved_channel_port,
                                                         loglevel=logging.CRITICAL)
-        threading.Thread(
-            target=self.__websocket_server_status.run_forever,
-            name=f"interface ({self.__class}:{self.__name}) websocket server for internal status", daemon=True).start()
-        threading.Thread(
-            target=self.__websocket_server_saved.run_forever,
-            name=f"interface ({self.__class}:{self.__name}) websocket server for saved data", daemon=True).start()
-        threading.Thread(
-            target=self.__broadcast_internal_status,
-            name=f"interface ({self.__class}:{self.__name}) broadcast internal status over websocket",
-            daemon=True).start()
-        threading.Thread(
-            target=self.__broadcast_saved_data,
-            name=f"interface ({self.__class}:{self.__name}) broadcast saved data over websocket", daemon=True).start()
-        # For Notification Delivery System
+        threading.Thread(target=self.__websocket_server_status.run_forever,
+                         name=f"interface ({self.__class}:{self.__name}) websocket server for internal status",
+                         daemon=True).start()
+        threading.Thread(target=self.__websocket_server_saved.run_forever,
+                         name=f"interface ({self.__class}:{self.__name}) websocket server for saved data",
+                         daemon=True).start()
+        threading.Thread(target=self.__broadcast_internal_status,
+                         name=f"interface ({self.__class}:{self.__name}) broadcast internal status over websocket",
+                         daemon=True).start()
+        threading.Thread(target=self.__broadcast_saved_data,
+                         name=f"interface ({self.__class}:{self.__name}) broadcast saved data over websocket",
+                         daemon=True).start()  # For Notification Delivery System
 
     @staticmethod
     def is_port_available(port):
@@ -201,9 +197,7 @@ class LogServerWithHTTPInterface:
             except Exception as e:
                 raise Exception(f"invalid space_percentage_to_stop, {e}")
 
-            self.__database_configs = {
-                "log_saving_directory": self.__database_root_dir
-            }
+            self.__database_configs = {"log_saving_directory": self.__database_root_dir}
 
     def __start_logserver(self):
         with self.__thread_lock:
@@ -266,57 +260,35 @@ class LogServerWithHTTPInterface:
 
     @staticmethod
     def docs():
-        demo = {
-            "add_client": {
-                "client": "str",
-                "ip": "str"
-            },
-            "remove_client": {
-                "client": "str,it will delete all related data",
-            },
-            "edit_client_ip": {
-                "client": "str, existing client name",
-                "ip": "str, new ip"
-            },
-            "all_clients": "just need the key value, all registered client will be returned",
-            "get_stats/second": "just need the key value, gives the engine load per second",
-            "set_configs": {
-                "keep_original_log": "bool"
-            },
-            "get_configs": "just need the key value, all configs of the running engine will be returned",
-            "verbose_bridge": "bool, put bridge in verbose",
-            "verbose_engine": "bool, put engine in verbose",
-            "verbose_database": "bool, put database in verbose",
-            "stop": "just need the key value, stop the bridge but can be restarted using start/restart",
-            "restart": "just need the key value, restart a stopped engine",
-            "_running_": "just need the key value, it provide all running threads/process",
-            "supported_query": {
-                "client": "str, will return all supported query for the saved logs",
-                "date": "str, will return all supported query for the saved logs"
-            },
-            "history": "just need the key value, history will be return date wise along with GB",
-            "query": {
-                "client": "str",
-                "date": "str",
-                "starting": "str",
-                "limit": "str",
-                "condition": "dict, dict key ust match with supported query of that client and date"
-            },
-            "query_manual": {
-                "client": "str",
-                "date": "str",
-                "condition": "dict, dict key ust match with supported query of that client and date, or ignore the "
-                             "key for full db path"
-            },
-            "query_count": {
-                "client": "str",
-                "date": "str",
-                "condition": "dict, dict key ust match with supported query of that client and date"
-            },
-            "start": "just need the key value, start the engine",
-            "stop_all": "just need the key value, stops everything",
-            "get_supported_configs": "just need the key value, configurable options of the engine",
-        }
+        demo = {"add_client": {"client": "str", "ip": "str"},
+                "remove_client": {"client": "str,it will delete all related data", },
+                "edit_client_ip": {"client": "str, existing client name", "ip": "str, new ip"},
+                "all_clients": "just need the key value, all registered client will be returned",
+                "get_stats/second": "just need the key value, gives the engine load per second",
+                "set_configs": {"keep_original_log": "bool"},
+                "get_configs": "just need the key value, all configs of the running engine will be returned",
+                "verbose_bridge": "bool, put bridge in verbose", "verbose_engine": "bool, put engine in verbose",
+                "verbose_database": "bool, put database in verbose",
+                "stop": "just need the key value, stop the bridge but can be restarted using start/restart",
+                "restart": "just need the key value, restart a stopped engine",
+                "_running_": "just need the key value, it provide all running threads/process",
+                "supported_query": {"client": "str, will return all supported query for the saved logs",
+                                    "date": "str, will return all supported query for the saved logs"},
+                "history": "just need the key value, history will be return date wise along with GB",
+                "query": {"client": "str", "date": "str", "starting": "str", "limit": "str",
+                          "condition": "dict, dict key ust match with supported query of that client and date"},
+                "query_manual": {"client": "str", "date": "str",
+                                 "condition": "dict, dict key ust match with supported query of that client and date, "
+                                              "or ignore the"
+                                              "key for full db path"},
+                "query_count": {"client": "str", "date": "str", "condition": "dict, dict key "
+                                                                             "ust match with "
+                                                                             "supported query "
+                                                                             "of that client "
+                                                                             "and date"},
+                "start": "just need the key value, start the engine",
+                "stop_all": "just need the key value, stops everything",
+                "get_supported_configs": "just need the key value, configurable options of the engine", }
         return demo
 
     def __verbose_mode(self, verbose_bridge: bool = False, verbose_engine: bool = False,
@@ -488,10 +460,7 @@ class LogServerWithHTTPInterface:
 
     @staticmethod
     def get_supported_configuration():
-        return {
-            "keep_original_log": "bool",
-            "auto_delete_days": "int"
-        }
+        return {"keep_original_log": "bool", "auto_delete_days": "int"}
 
     def __set_configuration(self, config: dict):
         with self.__thread_lock:
@@ -507,30 +476,29 @@ class LogServerWithHTTPInterface:
             raise Exception("only lowercase letters, digits, and '_' are allowed.")
 
     @staticmethod
-    def is_valid_ip(ip):
+    def is_valid_ip(client, ip):
         try:
-            ipaddress.ip_address(ip)
+            temp = ClientWithIP(client, ip)
+            return temp.is_valid_client()
         except ValueError:
             return False
-        else:
-            return True
 
     def add_client(self, client, ip):
         client = client.strip()
         ip = ip.strip()
         if not 4 <= len(client) < 30:
             raise Exception("incorrect name length, should be between 4 to 30")
-        if not self.is_valid_ip(ip):
+        if not self.is_valid_ip(client, ip):
             raise Exception("invalid ip")
         if self.__bridge_instance is None or self.__bridge_instance.is_none():
             raise Exception("engine is not running")
         with self.__thread_lock:
             self.__cached_clients_from_engine = self.__bridge_instance.get_allowed_clients_from_engine()
-
+        temp = ClientWithIP(client, ip)
         for _client in self.__cached_clients_from_engine:
-            if _client.client == client:
+            if _client.client == temp.client:
                 raise Exception("client name already exists")
-            if _client.ip == ip:
+            if _client.ip == temp.ip:
                 raise Exception("ip already exists")
         with self.__thread_lock:
             result = self.__bridge_instance.add_client(client, ip)
@@ -570,17 +538,18 @@ class LogServerWithHTTPInterface:
         self.only_lower(client)
         if not 4 <= len(client) < 30:
             raise Exception("incorrect name length, should be between 4 to 30")
-        if not self.is_valid_ip(ip):
+        if not self.is_valid_ip(client, ip):
             raise Exception("invalid ip")
         if self.__bridge_instance is None or self.__bridge_instance.is_none():
             raise Exception("engine is not running")
         with self.__thread_lock:
             self.__cached_clients_from_engine = self.__bridge_instance.get_allowed_clients_from_engine()
         client_found = False
+        temp = ClientWithIP(client, ip)
         for _client in self.__cached_clients_from_engine:
             if _client.client == client:
                 client_found = True
-            if _client.ip == ip:
+            if _client.ip == temp.ip:
                 raise Exception("ip already exists")
 
         if not client_found:
@@ -615,27 +584,17 @@ class LogServerWithHTTPInterface:
                 size = float(f"{get_directory_size(path) / (1024 ** 3):.2f}")
             except Exception:
                 pass
-            _temp[client.client] = [
-                client.ip, size]
+            _temp[client.client] = [client.ip, size]
         return _temp
 
     def get_all_configs(self):
-        temp = {
-            "configs": {
-                "class": self.__class,
-                "engine_name": self.__name,
-                "engine_port": self.__engine_port,
-                "keep_original_log": self.__keep_original_log,
-                "buffer_size": self.__bridge_instance.get_engine_buffer(),
-                "auto_delete_days": self.__auto_delete_days
-            },
-            "clients": self.all_clients(),
-            "others": {
-                "interface_port": self.__interface_port,
-                "internal_status_websocket_port": self.__internal_status_port,
-                "saved_data_websocket_port": self.__saved_channel_port,
-            }
-        }
+        temp = {"configs": {"class": self.__class, "engine_name": self.__name, "engine_port": self.__engine_port,
+                            "keep_original_log": self.__keep_original_log,
+                            "buffer_size": self.__bridge_instance.get_engine_buffer(),
+                            "auto_delete_days": self.__auto_delete_days}, "clients": self.all_clients(),
+                "others": {"interface_port": self.__interface_port,
+                           "internal_status_websocket_port": self.__internal_status_port,
+                           "saved_data_websocket_port": self.__saved_channel_port, }}
         return temp
 
     def stop_all(self):

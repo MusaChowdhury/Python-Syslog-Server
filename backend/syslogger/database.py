@@ -156,7 +156,7 @@ class DataBaseHook:
         return template_start
 
     @staticmethod
-    def __inset_statement(values):
+    def __insert_statement(values):
         template_start = '''INSERT INTO LOG ('''
         template_middle = ''') VALUES ('''
         template_end = ''')'''
@@ -224,7 +224,7 @@ class DataBaseHook:
                         connections[target_database]["connection"].execute("PRAGMA synchronous = FULL")
                         connections[target_database]["connection"].commit()
                         self.__shared_dictionary[target_database] = "active"
-                        connections[target_database]["insert"] = DataBaseHook.__inset_statement(processed_info)
+                        connections[target_database]["insert"] = DataBaseHook.__insert_statement(processed_info)
                         connections[target_database]["values"] = []
 
                     # For Caching Db Names

@@ -19,6 +19,15 @@ const rootPath = "/dashboard"; // this should be based on its relative position
 
 const navigationIndex = [
   {
+    name: "System",
+    icon: PersonalVideoIcon,
+    routing: rootPath + "/system",
+  },
+  {
+    name: "divider",
+    number: 1,
+  },
+  {
     name: "Dashboard",
     icon: QueryStatsIcon,
     routing: rootPath,
@@ -39,13 +48,9 @@ const navigationIndex = [
     routing: rootPath + "/realtime_status",
   },
   {
-    name: "divider",
-    number: 1,
-  },
-  {
-    name: "System",
-    icon: PersonalVideoIcon,
-    routing: rootPath + "/system",
+    name: "Browse Log",
+    icon: ManageSearchIcon,
+    routing: rootPath + "/browse_log",
   },
   {
     name: "divider",
@@ -56,18 +61,10 @@ const navigationIndex = [
     icon: ManageAccountsIcon,
     routing: rootPath + "/user_management",
   },
+
   {
     name: "divider",
     number: 3,
-  },
-  {
-    name: "Browse Log",
-    icon: ManageSearchIcon,
-    routing: rootPath + "/browse_log",
-  },
-  {
-    name: "divider",
-    number: 4,
   },
   {
     name: "Time Zone",
@@ -76,7 +73,7 @@ const navigationIndex = [
   },
   {
     name: "divider",
-    number: 5,
+    number: 4,
   },
   {
     name: "Copyright",

@@ -499,5 +499,5 @@ function totalUsedDisk(clients) {
   for (const client of Object.values(clients)) {
     sum += client[1];
   }
-  return sum;
+  return sum.toFixed(2);
 }

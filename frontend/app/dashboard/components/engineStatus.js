@@ -1,14 +1,14 @@
 "use client";
 import { LineChart } from "@mui/x-charts/LineChart";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
 import { ErrorContext, TimeContext } from "../context";
 import {
   Typography,
   useMediaQuery,
   useTheme,
   Divider,
+  Box,
 } from "@mui/material";
-import { Box } from "@mui/material";
 import { getEngineLoad } from "@/app/auth";
 
 function addToList(setList, data, string = true, limit = 5) {
@@ -30,7 +30,7 @@ export default function EngineStatus({ engineInfo }) {
   const engineName = engineInfo.configs.engine_name;
   const engineClass = engineInfo.configs.class;
   const enginePort = engineInfo.configs.engine_port;
-  const setEngineError = useContext(ErrorContext)
+  const setEngineError = useContext(ErrorContext);
   const { currentTime } = useContext(TimeContext);
   const [incoming, setIncoming] = useState([0, 0, 0, 0, 0]);
   const [rejecting, setRejecting] = useState([0, 0, 0, 0, 0]);
@@ -46,11 +46,11 @@ export default function EngineStatus({ engineInfo }) {
 
   useEffect(() => {
     const timer = setInterval(async () => {
-      let load = await getEngineLoad(interfacePort).then((result)=>{
-        if(Object.keys(result).length === 0){
-          return "error"
+      let load = await getEngineLoad(interfacePort).then((result) => {
+        if (Object.keys(result).length === 0) {
+          return "error";
         }
-        return result
+        return result;
       });
       if (load === "error") {
         setInterfaceError(true);
@@ -58,11 +58,11 @@ export default function EngineStatus({ engineInfo }) {
       }
       if (load.server_receiving_log === "no space") {
         setDiskFull(true);
-        setEngineError("Disk Space Full, All Engine Is Paused")
+        setEngineError("Disk Space Full, All Engine Is Paused");
       } else {
         setDiskFull(false);
-        if(diskFull == true){
-          setEngineError("")
+        if (diskFull === true) {
+          setEngineError("");
         }
       }
       addToList(setProcessing, load.realtime_processing_client_log, false);
@@ -73,7 +73,10 @@ export default function EngineStatus({ engineInfo }) {
     return () => clearInterval(timer);
   }, []);
 
-  let chats = [
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+
+  const chats = useMemo(() => [
     {
       data: incoming,
       label: "Incoming",
@@ -106,11 +109,7 @@ export default function EngineStatus({ engineInfo }) {
       color: "green",
       hidden: true,
     },
-  ];
-
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
-
+  ], [incoming, rejecting, processing, saving]);
 
   return (
     <>
@@ -128,7 +127,7 @@ export default function EngineStatus({ engineInfo }) {
           }}
         >
           <Typography variant="h7" fontWeight={"bold"} color={"error.main"}>
-            Engine Is Paused Due To No Disk Space
+            Engine Is Paused
           </Typography>
           <Divider variant="inset" orientation="horizontal" flexItem />
           <Typography variant="h7">Engine Name: {engineName}</Typography>
@@ -191,8 +190,7 @@ export default function EngineStatus({ engineInfo }) {
                   p: 1,
                   alignItems: "center",
                 }}
-              >
-              </Box>
+              ></Box>
             </Box>
           </Box>
           <Box
@@ -208,9 +206,14 @@ export default function EngineStatus({ engineInfo }) {
               alignItems: "center",
             }}
           >
-            {chats.map((config) => {
-              return PerformanceChart(config, times, isSmallScreen);
-            })}
+            {chats.map((config) => (
+              <PerformanceChart
+                key={config.label}
+                config={config}
+                data={times}
+                smallScreen={isSmallScreen}
+              />
+            ))}
           </Box>
         </Box>
       ) : (
@@ -220,14 +223,18 @@ export default function EngineStatus({ engineInfo }) {
   );
 }
 
-function PerformanceChart(config, data, smallScreen) {
-  let hideOnSmallScreen = config.hidden;
-  function small() {
-    return smallScreen && hideOnSmallScreen;
-  }
+function PerformanceChart({ config, data, smallScreen }) {
+  const hideOnSmallScreen = config.hidden;
+
+  const small = () => smallScreen && hideOnSmallScreen;
+
+  const updatedConfig = useMemo(() => ({
+    ...config,
+    label: `${String(config.label)} [Current: ${config.data[config.data.length - 1]}]`
+  }), [config, config.data]);
+
   return (
     <Box
-      key={String(config.label)}
       sx={{
         width: small() ? 0 : !smallScreen ? "25%" : "100%",
         height: small() ? 0 : !smallScreen ? "100%" : "50%",
@@ -238,10 +245,11 @@ function PerformanceChart(config, data, smallScreen) {
         <Box></Box>
       ) : (
         <LineChart
-          id={String(config.label)}
-          series={[config]}
+          id={updatedConfig.label}
+          axisHighlight={{ x: "none", y: "none" }}
+          series={[updatedConfig]}
           xAxis={[{ scaleType: "point", data: data }]}
-          yAxis={[{ tickMinStep: 1, min: 0, max: 140000 }]}
+          yAxis={[{ tickMinStep: 1, min: 0, max: 150000 }]}
           sx={{
             ".MuiLineElement-root": {
               display: "none",

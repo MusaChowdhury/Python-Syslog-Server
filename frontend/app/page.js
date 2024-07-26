@@ -6,7 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { isSessionValid, alive } from "@/app/auth";
 import { Box } from "@mui/material";
 
-export default function View() {
+export default function Root() {
   const router = useRouter();
   useEffect(() => {
     const checkServer = async () => {
@@ -19,7 +19,7 @@ export default function View() {
     if (!isSessionValid()) {
       router.replace("/login");
     } else {
-      router.replace("/dashboard");
+      router.replace("/dashboard/system");
     }
     checkServer();
   }, []);

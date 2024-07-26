@@ -77,6 +77,7 @@ export default function AuthLayout({ children }) {
                       sx={{
                         overflow: "hidden",
                         width: "100%",
+                        fontSize: '1rem'
                       }}
                     >
                       {line}

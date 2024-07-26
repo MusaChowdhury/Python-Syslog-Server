@@ -47,32 +47,60 @@ class RegularExpressionAndKey:
 
 class ClientWithIP:
     def __init__(self, client: str | None, ip: str):
-        self.client = client.strip() if client is not None else None
-        self.ip = ip.strip()
+        self.client = client.strip() if (isinstance(client, str) and len(client) > 0) else None
+        self.ip = ip.strip().replace(' ', '') if (isinstance(ip, str) and len(ip) <= 15) else None
         self.formed_database_name_from_client = f"{self.client}"
+        self.ip_frags = []
+        self._is_valid = None
+        self._is_valid = self.is_valid_client()
 
     def is_valid_client(self):
-        valid_ip = True
+        if self._is_valid:
+            return True
+        if not self.ip and not self.client:
+            return False
         try:
-            ipaddress.ip_address(self.ip)
-        except ValueError:
-            valid_ip = False
-            pass
-        if (self.client is not None and len(self.client) > 0) and valid_ip:
+            for ip_frag in self.ip.split('.'):
+                if ip_frag != "*":
+                    ip_as_int = int(ip_frag)
+                    if 0 <= ip_as_int <= 255:
+                        self.ip_frags.append(ip_frag)
+                    else:
+                        raise Exception
+                else:
+                    break
+            self.ip = '.'.join(map(str, self.ip_frags))
+            self.ip += '.*' if len(self.ip_frags) < 4 else ''
+            self.ip = '*' if self.ip == '.*' else self.ip
+            if not len(self.ip_frags) <= 4:
+                raise Exception
+        except Exception as e:
+            self.ip_frags = 'invalid'
+            self.ip = 'invalid'
+            return False
+        return True
+
+    def check_if_in_groups(self, ip: str):
+        ip = str(ip)
+        if self._is_valid:
+            try:
+                match = ip.split('.')
+                for index, frag in enumerate(self.ip_frags):
+                    if frag != match[index]:
+                        return False
+            except Exception as e:
+                return False
             return True
         else:
             return False
 
-    def __str__(self):
-        return f"name: {self.client}, ip: {self.ip}"
-
     def __repr__(self):
-        return f"name: {self.client}, ip: {self.ip}"
+        return f"name: {self.client}, ip: {self.ip}, ip_frags: {self.ip_frags}"
 
 
 class LogInstanceWithRelatedInformation:
-    def __init__(self, client: Union[ClientWithIP, None], date_time: DateTimeFormat | None,
-                 raw_data, values: dict | None):
+    def __init__(self, client: Union[ClientWithIP, None], date_time: DateTimeFormat | None, raw_data,
+                 values: dict | None):
         self.client = client
         self.unprocessed = raw_data
         self.values = values
@@ -143,20 +171,20 @@ class Engine:
         self.__callback_queue = Queue(30000000)
         self.__internal_queue_for_clients = multiprocessing.Queue()
 
-        self.__callback_process_1 = multiprocessing.Process(
-            target=self.__callback_processor, name=f"engine ({self.__name}) callback_for_db process/callback 1")
-        self.__callback_process_2 = multiprocessing.Process(
-            target=self.__callback_processor, name=f"engine ({self.__name}) callback_for_db process/callback 2")
-        self.__callback_process_3 = multiprocessing.Process(
-            target=self.__callback_processor, name=f"engine ({self.__name}) callback_for_db process/callback 3")
-        self.__callback_process_4 = multiprocessing.Process(
-            target=self.__callback_processor, name=f"engine ({self.__name}) callback_for_db process/callback 4")
-        self.__data_parser_manager_process_1 = multiprocessing.Process(
-            target=self.__data_manger_processor, name=f"engine ({self.__name}) data manager process 1")
-        self.__data_parser_manager_process_2 = multiprocessing.Process(
-            target=self.__data_manger_processor, name=f"engine data ({self.__name}) manager process 2")
-        self.__listener_process = multiprocessing.Process(
-            target=self.__listener_processor, name=f"engine ({self.__name}) listener process")
+        self.__callback_process_1 = multiprocessing.Process(target=self.__callback_processor,
+                                                            name=f"engine ({self.__name}) callback_for_db process/callback 1")
+        self.__callback_process_2 = multiprocessing.Process(target=self.__callback_processor,
+                                                            name=f"engine ({self.__name}) callback_for_db process/callback 2")
+        self.__callback_process_3 = multiprocessing.Process(target=self.__callback_processor,
+                                                            name=f"engine ({self.__name}) callback_for_db process/callback 3")
+        self.__callback_process_4 = multiprocessing.Process(target=self.__callback_processor,
+                                                            name=f"engine ({self.__name}) callback_for_db process/callback 4")
+        self.__data_parser_manager_process_1 = multiprocessing.Process(target=self.__data_manger_processor,
+                                                                       name=f"engine ({self.__name}) data manager process 1")
+        self.__data_parser_manager_process_2 = multiprocessing.Process(target=self.__data_manger_processor,
+                                                                       name=f"engine data ({self.__name}) manager process 2")
+        self.__listener_process = multiprocessing.Process(target=self.__listener_processor,
+                                                          name=f"engine ({self.__name}) listener process")
         self.__process_lock = multiprocessing.RLock()
 
         # check reserved_keywords
@@ -166,8 +194,7 @@ class Engine:
             if configuration.field_name in invalid_column:
                 continue
             else:
-                self.__output_formats.append(configuration)
-        # check reserved_keywords
+                self.__output_formats.append(configuration)  # check reserved_keywords
 
     @staticmethod
     def get_max_udp_buffer_size():
@@ -189,8 +216,7 @@ class Engine:
             if size < 20:
                 self.__internal_status_log.put_nowait(InternalLog(status_type, msg, origin + f" ({self.__name})"))
         except Exception:
-            pass
-        # Must Consume For Future Log Otherwise The Log Will Be Discarded
+            pass  # Must Consume For Future Log Otherwise The Log Will Be Discarded
 
     def get_all_clients(self) -> list[ClientWithIP]:
         clients_as_list = []
@@ -266,10 +292,9 @@ class Engine:
         for key in self.__output_formats:
             processed_data_as_dictionary.update(Engine.__regular_expression_executor(
                 {'target': raw_data, 'expression': key.compiled_expression, 'key': key.field_name}))
-
+        related_client.ip = semi_processed_log.client.ip
         return LogInstanceWithRelatedInformation(related_client, semi_processed_log.date_time,
-                                                 semi_processed_log.unprocessed,
-                                                 processed_data_as_dictionary, )
+                                                 semi_processed_log.unprocessed, processed_data_as_dictionary, )
 
     def __cache_allowed_client(self, old_cached):
         cached = []
@@ -300,8 +325,8 @@ class Engine:
 
                     if self.__stop_engine.value:
                         return
-                    cached.append(LogInstanceWithRelatedInformation(ClientWithIP(None, info[0]), None,
-                                                                    raw_data, None, ))
+                    cached.append(
+                        LogInstanceWithRelatedInformation(ClientWithIP(None, info[0]), None, raw_data, None, ))
                     if current_time - previous_time > 0.0001:
                         previous_time = current_time
                         try:
@@ -338,7 +363,7 @@ class Engine:
                     log.date_time = date_with_time_format
                     client_found = False
                     for client in allowed_clients:
-                        if client.ip == log.client.ip:
+                        if client.check_if_in_groups(log.client.ip):
                             try:
                                 self.__callback_queue.put({"client": client, "log": log})
                             except Exception:
@@ -350,14 +375,10 @@ class Engine:
                         self.__unknown_incoming_per_second.value += 1
                         status += 1
                         if status < 5:
-                            self.__add_internal_status_to_queue(
-                                InternalLog.Type.Warning,
-                                f"unknown log client tried to send data, details [{log.client} (rejected)]"
-                            )
+                            self.__add_internal_status_to_queue(InternalLog.Type.Warning,
+                                                                f"unknown log client tried to send data, details [{log.client} (rejected)]")
             except Exception as e:
-                self.__add_internal_status_to_queue(
-                    InternalLog.Type.Error,
-                    f"critical engine error, details: {e}")
+                self.__add_internal_status_to_queue(InternalLog.Type.Error, f"critical engine error, details: {e}")
 
     def __callback_processor(self):
         cached = []
@@ -379,10 +400,9 @@ class Engine:
                             cached.append(converter_as_database)
                         except Exception as e:
                             traceback.print_exc()
-                            self.__add_internal_status_to_queue(
-                                InternalLog.Type.Error,
-                                f"probably due to huge load on server, "
-                                f"details: {e} (rejected) ({log.unprocessed})")
+                            self.__add_internal_status_to_queue(InternalLog.Type.Error,
+                                                                f"probably due to huge load on server, "
+                                                                f"details: {e} (rejected) ({log.unprocessed})")
                 self.__database_queue.put_many(cached)
                 self.__known_incoming_per_second.value += len(bunch)
                 cached = []
@@ -403,11 +423,9 @@ class Engine:
     def __data_base_type_converter(processed_log: LogInstanceWithRelatedInformation, keep_raw: bool):
         sender = processed_log.client.formed_database_name_from_client
         date = processed_log.date_time.get_date_with_month_name()
-        data_for_database = {
-            "log_sender_ip": processed_log.client.ip,
-            "time": processed_log.date_time.date_time_object.time().strftime('%H:%M:%S'),
-            "time_zone": processed_log.date_time.timezone,
-        }
+        data_for_database = {"log_sender_ip": processed_log.client.ip,
+                             "time": processed_log.date_time.date_time_object.time().strftime('%H:%M:%S'),
+                             "time_zone": processed_log.date_time.timezone, }
         for key in processed_log.values:
             key_value = processed_log.values[key]
             if len(key) > 3 and key[-3:] == "_ip":
@@ -450,8 +468,7 @@ class Engine:
                 if not self.__listener_process.is_alive():
                     break
         except Exception as e:
-            self.__add_internal_status_to_queue(
-                InternalLog.Type.Error, f"while closing down engine, details: {e}")
+            self.__add_internal_status_to_queue(InternalLog.Type.Error, f"while closing down engine, details: {e}")
             return False
         time.sleep(1)
         try:

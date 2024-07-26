@@ -1,6 +1,7 @@
 import random
 import socket
 import string
+import threading
 import time
 
 
@@ -51,4 +52,5 @@ def udp_test_client(port: int, delay: float = 0.0001, host: str = "127.0.0.1", )
 
 
 if __name__ == "__main__":
-    udp_test_client(5200, 0.00001)
+    # udp_test_client(5600, 0)
+    threading.Thread(target=udp_test_client(6000, 0)).start()

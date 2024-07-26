@@ -136,10 +136,13 @@ export default function Create(){
 
 function isValidIP(ipAddress) {
   const parts = ipAddress.split(".");
-  if (parts.length !== 4) {
+  if (parts.length > 4) {
     return false;
   }
   for (const part of parts) {
+    if (part === "*") {
+      continue;
+    }
     const num = parseInt(part, 10);
     if (isNaN(num) || num < 0 || num > 255) {
       return false;
